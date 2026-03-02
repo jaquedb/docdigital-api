@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/docdigital
+    url: jdbc:postgresql://localhost:5433/docdigital
     username: postgres
     password: wellington
 
