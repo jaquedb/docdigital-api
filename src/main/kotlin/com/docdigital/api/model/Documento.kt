@@ -2,22 +2,26 @@ package com.docdigital.api.model
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(name = "documentos")
-class Documento(
+open class Documento(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     var nome: String,
 
+    @Column(columnDefinition = "text")
     var descricao: String? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "categoria", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false)
     var categoria: CategoriaDocumento,
 
     @Column(name = "data_upload", nullable = false)
@@ -26,13 +30,15 @@ class Documento(
     @Column(name = "data_vencimento")
     var dataVencimento: LocalDateTime? = null,
 
-    @Column(name = "caminho_arquivo", nullable = false)
+    @Column(name = "caminho_arquivo", nullable = false, length = 50)
     var caminhoArquivo: String,
 
-    @Column(name = "tipo_arquivo", nullable = false)
-    var tipoArquivo: String,
+    @Column(name = "tipo_arquivo", nullable = false, length = 50)
+    var tipoArquivo: String
+
+) {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    var usuario: Usuario
-)
+    lateinit var usuario: Usuario
+}

@@ -18,6 +18,8 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/documentos/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/documentos").permitAll()
                     .anyRequest().authenticated()
             }
 
