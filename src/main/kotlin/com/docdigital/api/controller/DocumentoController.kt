@@ -19,7 +19,7 @@ class DocumentoController(
     ): ResponseEntity<Documento> {
 
         val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw RuntimeException("Usuário não autenticado")
+            ?: throw IllegalArgumentException("Usuário não autenticado")
 
         val email = authentication.name
 
@@ -41,7 +41,7 @@ class DocumentoController(
     fun listarTodos(): ResponseEntity<List<Documento>> {
 
         val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw RuntimeException("Usuário não autenticado")
+            ?: throw IllegalArgumentException("Usuário não autenticado")
 
         val email = authentication.name
         val documentos = documentoService.listarPorEmail(email)

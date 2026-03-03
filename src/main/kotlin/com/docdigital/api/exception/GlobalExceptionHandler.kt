@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.http.converter.HttpMessageNotReadableException
 import java.time.LocalDateTime
 
 @ControllerAdvice
@@ -16,6 +17,17 @@ class GlobalExceptionHandler {
             status = HttpStatus.BAD_REQUEST.value(),
             error = "Bad Request",
             message = ex.message ?: "Erro na requisição"
+        )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error)
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleInvalidJson(ex: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+        val error = ErrorResponse(
+            timestamp = LocalDateTime.now(),
+            status = HttpStatus.BAD_REQUEST.value(),
+            error = "JSON inválido",
+            message = "Verifique os campos enviados (categoria, datas ou formato incorreto)"
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error)
     }

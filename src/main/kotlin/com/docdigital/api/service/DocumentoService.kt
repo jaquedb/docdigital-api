@@ -15,7 +15,7 @@ open class DocumentoService(
     fun cadastrarPorEmail(documento: Documento, email: String): Documento {
 
         val usuario = usuarioRepository.findByEmail(email)
-            .orElseThrow { RuntimeException("Usuário não encontrado") }
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
         documento.usuario = usuario
 
@@ -25,7 +25,7 @@ open class DocumentoService(
     fun listarPorEmail(email: String): List<Documento> {
 
         val usuario = usuarioRepository.findByEmail(email)
-            .orElseThrow { RuntimeException("Usuário não encontrado") }
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
         return documentoRepository.findByUsuario(usuario)
     }

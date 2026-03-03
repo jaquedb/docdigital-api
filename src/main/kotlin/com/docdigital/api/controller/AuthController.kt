@@ -20,12 +20,12 @@ class AuthController(
     fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
 
         val usuario = usuarioRepository.findByEmail(request.email)
-            .orElseThrow { RuntimeException("Usuário não encontrado") }
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
         val senhaValida = passwordEncoder.matches(request.senha, usuario.senha)
 
         if (!senhaValida) {
-            throw RuntimeException("Senha inválida")
+            throw IllegalArgumentException("Senha inválida")
         }
 
         val token = jwtService.generateToken(usuario.email)
