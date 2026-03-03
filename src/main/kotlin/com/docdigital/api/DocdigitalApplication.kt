@@ -9,3 +9,4 @@ class DocdigitalApplication
 fun main(args: Array<String>) {
 	runApplication<DocdigitalApplication>(*args)
 }
+

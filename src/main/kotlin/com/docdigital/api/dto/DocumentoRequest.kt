@@ -1,7 +1,7 @@
 package com.docdigital.api.dto
 
 import com.docdigital.api.model.CategoriaDocumento
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 data class DocumentoRequest(
     val nome: String,
@@ -9,5 +9,5 @@ data class DocumentoRequest(
     val categoria: CategoriaDocumento,
     val caminhoArquivo: String,
     val tipoArquivo: String,
-    val dataVencimento: LocalDateTime?
+    val dataVencimento: LocalDate?
 )

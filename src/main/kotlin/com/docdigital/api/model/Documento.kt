@@ -1,6 +1,7 @@
 package com.docdigital.api.model
 
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
@@ -28,7 +29,7 @@ open class Documento(
     var dataUpload: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "data_vencimento")
-    var dataVencimento: LocalDateTime? = null,
+    var dataVencimento: LocalDate? = null,  // 🔹 ALTERADO AQUI
 
     @Column(name = "caminho_arquivo", nullable = false, length = 50)
     var caminhoArquivo: String,

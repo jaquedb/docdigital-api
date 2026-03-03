@@ -1,6 +1,7 @@
 package com.docdigital.api.service
 
 import com.docdigital.api.model.Documento
+import com.docdigital.api.model.Usuario
 import com.docdigital.api.repository.DocumentoRepository
 import com.docdigital.api.repository.UsuarioRepository
 import org.springframework.stereotype.Service
@@ -11,9 +12,9 @@ open class DocumentoService(
     private val usuarioRepository: UsuarioRepository
 ) {
 
-    fun cadastrar(documento: Documento, usuarioId: Long): Documento {
+    fun cadastrarPorEmail(documento: Documento, email: String): Documento {
 
-        val usuario = usuarioRepository.findById(usuarioId)
+        val usuario = usuarioRepository.findByEmail(email)
             .orElseThrow { RuntimeException("Usuário não encontrado") }
 
         documento.usuario = usuario
@@ -21,7 +22,11 @@ open class DocumentoService(
         return documentoRepository.save(documento)
     }
 
-    fun listarTodos(): List<Documento> {
-        return documentoRepository.findAll()
+    fun listarPorEmail(email: String): List<Documento> {
+
+        val usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow { RuntimeException("Usuário não encontrado") }
+
+        return documentoRepository.findByUsuario(usuario)
     }
 }

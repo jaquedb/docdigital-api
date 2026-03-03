@@ -4,6 +4,7 @@ import com.docdigital.api.dto.DocumentoRequest
 import com.docdigital.api.model.Documento
 import com.docdigital.api.service.DocumentoService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -12,11 +13,15 @@ class DocumentoController(
     private val documentoService: DocumentoService
 ) {
 
-    @PostMapping("/{usuarioId}")
+    @PostMapping
     fun cadastrar(
-        @PathVariable usuarioId: Long,
         @RequestBody request: DocumentoRequest
     ): ResponseEntity<Documento> {
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw RuntimeException("Usuário não autenticado")
+
+        val email = authentication.name
 
         val documento = Documento(
             nome = request.nome,
@@ -27,14 +32,20 @@ class DocumentoController(
             dataVencimento = request.dataVencimento
         )
 
-        val documentoSalvo = documentoService.cadastrar(documento, usuarioId)
+        val documentoSalvo = documentoService.cadastrarPorEmail(documento, email)
 
         return ResponseEntity.ok(documentoSalvo)
     }
 
     @GetMapping
     fun listarTodos(): ResponseEntity<List<Documento>> {
-        val documentos = documentoService.listarTodos()
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw RuntimeException("Usuário não autenticado")
+
+        val email = authentication.name
+        val documentos = documentoService.listarPorEmail(email)
+
         return ResponseEntity.ok(documentos)
     }
 }
