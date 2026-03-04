@@ -1,5 +1,11 @@
 # 📄 DocDigital API
 
+![Kotlin](https://img.shields.io/badge/Kotlin-1.9-purple)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![Maven](https://img.shields.io/badge/Build-Maven-red)
+
 API REST para gerenciamento e digitalização de documentos pessoais.
 
 A **DocDigital API** permite que usuários armazenem, organizem e
