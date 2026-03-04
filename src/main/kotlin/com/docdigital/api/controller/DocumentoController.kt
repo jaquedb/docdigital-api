@@ -75,6 +75,33 @@ class DocumentoController(
         return ResponseEntity.ok(response)
     }
 
+    @PutMapping("/{id}")
+    fun atualizar(
+        @PathVariable id: Long,
+        @RequestBody request: DocumentoRequest
+    ): ResponseEntity<DocumentoResponse> {
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw IllegalArgumentException("Usuário não autenticado")
+
+        val email = authentication.name
+
+        val documentoAtualizado = documentoService.atualizarPorIdEEmail(id, request, email)
+
+        val response = DocumentoResponse(
+            id = documentoAtualizado.id,
+            nome = documentoAtualizado.nome,
+            descricao = documentoAtualizado.descricao,
+            categoria = documentoAtualizado.categoria,
+            dataUpload = documentoAtualizado.dataUpload,
+            dataVencimento = documentoAtualizado.dataVencimento,
+            caminhoArquivo = documentoAtualizado.caminhoArquivo,
+            tipoArquivo = documentoAtualizado.tipoArquivo
+        )
+
+        return ResponseEntity.ok(response)
+    }
+
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
 
