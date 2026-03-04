@@ -1,6 +1,7 @@
 package com.docdigital.api.controller
 
 import com.docdigital.api.dto.DocumentoRequest
+import com.docdigital.api.dto.DocumentoResponse
 import com.docdigital.api.model.Documento
 import com.docdigital.api.service.DocumentoService
 import org.springframework.http.ResponseEntity
@@ -16,7 +17,7 @@ class DocumentoController(
     @PostMapping
     fun cadastrar(
         @RequestBody request: DocumentoRequest
-    ): ResponseEntity<Documento> {
+    ): ResponseEntity<DocumentoResponse> {
 
         val authentication = SecurityContextHolder.getContext().authentication
             ?: throw IllegalArgumentException("Usuário não autenticado")
@@ -34,18 +35,43 @@ class DocumentoController(
 
         val documentoSalvo = documentoService.cadastrarPorEmail(documento, email)
 
-        return ResponseEntity.ok(documentoSalvo)
+        val response = DocumentoResponse(
+            id = documentoSalvo.id,
+            nome = documentoSalvo.nome,
+            descricao = documentoSalvo.descricao,
+            categoria = documentoSalvo.categoria,
+            dataUpload = documentoSalvo.dataUpload,
+            dataVencimento = documentoSalvo.dataVencimento,
+            caminhoArquivo = documentoSalvo.caminhoArquivo,
+            tipoArquivo = documentoSalvo.tipoArquivo
+        )
+
+        return ResponseEntity.ok(response)
     }
 
     @GetMapping
-    fun listarTodos(): ResponseEntity<List<Documento>> {
+    fun listarTodos(): ResponseEntity<List<DocumentoResponse>> {
 
         val authentication = SecurityContextHolder.getContext().authentication
             ?: throw IllegalArgumentException("Usuário não autenticado")
 
         val email = authentication.name
+
         val documentos = documentoService.listarPorEmail(email)
 
-        return ResponseEntity.ok(documentos)
+        val response = documentos.map {
+            DocumentoResponse(
+                id = it.id,
+                nome = it.nome,
+                descricao = it.descricao,
+                categoria = it.categoria,
+                dataUpload = it.dataUpload,
+                dataVencimento = it.dataVencimento,
+                caminhoArquivo = it.caminhoArquivo,
+                tipoArquivo = it.tipoArquivo
+            )
+        }
+
+        return ResponseEntity.ok(response)
     }
 }

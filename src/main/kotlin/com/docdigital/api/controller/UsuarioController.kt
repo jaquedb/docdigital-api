@@ -1,5 +1,7 @@
 package com.docdigital.api.controller
 
+import com.docdigital.api.dto.UsuarioRequest
+import com.docdigital.api.dto.UsuarioResponse
 import com.docdigital.api.model.Usuario
 import com.docdigital.api.service.UsuarioService
 import org.springframework.http.ResponseEntity
@@ -12,8 +14,22 @@ class UsuarioController(
 ) {
 
     @PostMapping
-    fun cadastrar(@RequestBody usuario: Usuario): ResponseEntity<Usuario> {
+    fun cadastrar(@RequestBody request: UsuarioRequest): ResponseEntity<UsuarioResponse> {
+
+        val usuario = Usuario(
+            nome = request.nome,
+            email = request.email,
+            senha = request.senha
+        )
+
         val usuarioSalvo = usuarioService.cadastrar(usuario)
-        return ResponseEntity.ok(usuarioSalvo)
+
+        val response = UsuarioResponse(
+            id = usuarioSalvo.id,
+            nome = usuarioSalvo.nome,
+            email = usuarioSalvo.email
+        )
+
+        return ResponseEntity.ok(response)
     }
 }
