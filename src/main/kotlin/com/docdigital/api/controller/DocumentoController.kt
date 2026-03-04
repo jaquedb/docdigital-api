@@ -74,4 +74,17 @@ class DocumentoController(
 
         return ResponseEntity.ok(response)
     }
+
+    @DeleteMapping("/{id}")
+    fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw IllegalArgumentException("Usuário não autenticado")
+
+        val email = authentication.name
+
+        documentoService.deletarPorIdEEmail(id, email)
+
+        return ResponseEntity.noContent().build()
+    }
 }

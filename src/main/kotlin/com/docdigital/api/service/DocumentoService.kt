@@ -1,7 +1,6 @@
 package com.docdigital.api.service
 
 import com.docdigital.api.model.Documento
-import com.docdigital.api.model.Usuario
 import com.docdigital.api.repository.DocumentoRepository
 import com.docdigital.api.repository.UsuarioRepository
 import org.springframework.stereotype.Service
@@ -28,5 +27,20 @@ open class DocumentoService(
             .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
         return documentoRepository.findByUsuario(usuario)
+    }
+
+    fun deletarPorIdEEmail(id: Long, email: String) {
+
+        val usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
+
+        val documento = documentoRepository.findById(id)
+            .orElseThrow { IllegalArgumentException("Documento não encontrado") }
+
+        if (documento.usuario.id != usuario.id) {
+            throw IllegalArgumentException("Você não tem permissão para deletar este documento")
+        }
+
+        documentoRepository.delete(documento)
     }
 }
