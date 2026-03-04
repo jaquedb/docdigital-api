@@ -195,30 +195,37 @@ Retorna documentos: - vencidos - vencendo hoje - vencendo em breve
 
 Campos principais:
 
-id (Long)\
-nome (String)\
-descricao (String)\
-categoria (Enum)\
-dataUpload (LocalDateTime)\
-dataVencimento (LocalDate)\
-tipoArquivo (String)\
-caminhoArquivo (String)\
-usuario (Usuario)
+| Campo | Tipo | Descrição |
+|------|------|-----------|
+| id | Long | Identificador único do documento |
+| nome | String | Nome do documento |
+| descricao | String | Descrição opcional |
+| categoria | Enum | Categoria do documento |
+| dataUpload | LocalDateTime | Data em que o documento foi enviado |
+| dataVencimento | LocalDate | Data de vencimento do documento (opcional) |
+| tipoArquivo | String | Tipo do arquivo enviado |
+| caminhoArquivo | String | Caminho onde o arquivo foi armazenado |
+| usuario | Usuario | Usuário dono do documento |
 
 ------------------------------------------------------------------------
 
 # 📁 Estrutura do projeto
-
-src/main/kotlin/com/docdigital/api
-
-config\
-controller\
-dto\
-exception\
-model\
-repository\
-service\
-DocdigitalApplication.kt
+```
+src
+└── main
+    └── kotlin
+        └── com
+            └── docdigital
+                └── api
+                    ├── config
+                    ├── controller
+                    ├── dto
+                    ├── exception
+                    ├── model
+                    ├── repository
+                    ├── service
+                    └── DocdigitalApplication.kt
+```
 
 ------------------------------------------------------------------------
 
