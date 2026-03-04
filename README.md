@@ -84,8 +84,8 @@ Body:
 
 ``` json
 {
-  "nome": "Jaque",
-  "email": "jaque@email.com",
+  "nome": "usuario",
+  "email": "usuario@email.com",
   "senha": "123456"
 }
 ```
@@ -102,7 +102,7 @@ Body:
 
 ``` json
 {
-  "email": "jaque@email.com",
+  "email": "usuario@email.com",
   "senha": "123456"
 }
 ```
@@ -234,7 +234,7 @@ Configuração realizada no arquivo **application.yaml**.
 
 1️⃣ Clonar repositório
 
-git clone https://github.com/seu-repositorio/docdigital-api
+git clone https://github.com/jaquedb/docdigital-api.git
 
 2️⃣ Configurar banco PostgreSQL
 
@@ -257,4 +257,4 @@ permitirá digitalizar e organizar documentos diretamente pelo celular.
 
 # 👨‍💻 Autor
 
-Projeto desenvolvido por **Jaque** para fins acadêmicos.
+Projeto desenvolvido por **Jaqueline** para fins acadêmicos.
