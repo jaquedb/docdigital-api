@@ -31,7 +31,7 @@ open class Documento(
     @Column(name = "data_vencimento")
     var dataVencimento: LocalDate? = null,  // 🔹 ALTERADO AQUI
 
-    @Column(name = "caminho_arquivo", nullable = false, length = 50)
+    @Column(name = "caminho_arquivo", nullable = false, length = 255)
     var caminhoArquivo: String,
 
     @Column(name = "tipo_arquivo", nullable = false, length = 50)

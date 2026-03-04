@@ -1,7 +1,7 @@
 package com.docdigital.api.controller
 
-import com.docdigital.api.dto.DocumentoRequest
 import com.docdigital.api.dto.DocumentoResponse
+import com.docdigital.api.model.CategoriaDocumento
 import com.docdigital.api.model.Documento
 import com.docdigital.api.service.DocumentoService
 import com.docdigital.api.service.FileStorageService
@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/documentos")
@@ -20,9 +21,13 @@ class DocumentoController(
     private val fileStorageService: FileStorageService
 ) {
 
-    @PostMapping
+    @PostMapping(consumes = ["multipart/form-data"])
     fun cadastrar(
-        @RequestBody request: DocumentoRequest
+        @RequestParam("file") file: MultipartFile,
+        @RequestParam nome: String,
+        @RequestParam(required = false) descricao: String?,
+        @RequestParam categoria: CategoriaDocumento,
+        @RequestParam(required = false) dataVencimento: String?
     ): ResponseEntity<DocumentoResponse> {
 
         val authentication = SecurityContextHolder.getContext().authentication
@@ -30,13 +35,16 @@ class DocumentoController(
 
         val email = authentication.name
 
+        // salva o arquivo no servidor
+        val nomeArquivo = fileStorageService.salvarArquivo(file)
+
         val documento = Documento(
-            nome = request.nome,
-            descricao = request.descricao,
-            categoria = request.categoria,
-            caminhoArquivo = request.caminhoArquivo,
-            tipoArquivo = request.tipoArquivo,
-            dataVencimento = request.dataVencimento
+            nome = nome,
+            descricao = descricao,
+            categoria = categoria,
+            caminhoArquivo = nomeArquivo,
+            tipoArquivo = file.contentType ?: "application/octet-stream",
+            dataVencimento = dataVencimento?.let { LocalDate.parse(it) }
         )
 
         val documentoSalvo = documentoService.cadastrarPorEmail(documento, email)
@@ -84,7 +92,7 @@ class DocumentoController(
     @PutMapping("/{id}")
     fun atualizar(
         @PathVariable id: Long,
-        @RequestBody request: DocumentoRequest
+        @RequestBody request: com.docdigital.api.dto.DocumentoRequest
     ): ResponseEntity<DocumentoResponse> {
 
         val authentication = SecurityContextHolder.getContext().authentication
@@ -121,20 +129,6 @@ class DocumentoController(
         return ResponseEntity.noContent().build()
     }
 
-    // ENDPOINT DE UPLOAD
-    @PostMapping("/upload")
-    fun uploadArquivo(
-        @RequestParam("file") file: MultipartFile
-    ): ResponseEntity<Map<String, String>> {
-
-        val nomeArquivo = fileStorageService.salvarArquivo(file)
-
-        return ResponseEntity.ok(
-            mapOf("arquivo" to nomeArquivo)
-        )
-    }
-
-    // NOVO ENDPOINT DE DOWNLOAD
     @GetMapping("/download/{nomeArquivo}")
     fun downloadArquivo(@PathVariable nomeArquivo: String): ResponseEntity<UrlResource> {
 
@@ -144,6 +138,18 @@ class DocumentoController(
 
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${resource.filename}\"")
+            .body(resource)
+    }
+
+    @GetMapping("/visualizar/{nomeArquivo}")
+    fun visualizarArquivo(@PathVariable nomeArquivo: String): ResponseEntity<UrlResource> {
+
+        val caminhoArquivo: Path = fileStorageService.carregarArquivo(nomeArquivo)
+
+        val resource = UrlResource(caminhoArquivo.toUri())
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"${resource.filename}\"")
             .body(resource)
     }
 }
