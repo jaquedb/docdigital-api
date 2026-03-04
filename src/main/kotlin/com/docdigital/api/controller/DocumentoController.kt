@@ -4,14 +4,20 @@ import com.docdigital.api.dto.DocumentoRequest
 import com.docdigital.api.dto.DocumentoResponse
 import com.docdigital.api.model.Documento
 import com.docdigital.api.service.DocumentoService
+import com.docdigital.api.service.FileStorageService
+import org.springframework.core.io.UrlResource
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.nio.file.Path
 
 @RestController
 @RequestMapping("/documentos")
 class DocumentoController(
-    private val documentoService: DocumentoService
+    private val documentoService: DocumentoService,
+    private val fileStorageService: FileStorageService
 ) {
 
     @PostMapping
@@ -113,5 +119,31 @@ class DocumentoController(
         documentoService.deletarPorIdEEmail(id, email)
 
         return ResponseEntity.noContent().build()
+    }
+
+    // ENDPOINT DE UPLOAD
+    @PostMapping("/upload")
+    fun uploadArquivo(
+        @RequestParam("file") file: MultipartFile
+    ): ResponseEntity<Map<String, String>> {
+
+        val nomeArquivo = fileStorageService.salvarArquivo(file)
+
+        return ResponseEntity.ok(
+            mapOf("arquivo" to nomeArquivo)
+        )
+    }
+
+    // NOVO ENDPOINT DE DOWNLOAD
+    @GetMapping("/download/{nomeArquivo}")
+    fun downloadArquivo(@PathVariable nomeArquivo: String): ResponseEntity<UrlResource> {
+
+        val caminhoArquivo: Path = fileStorageService.carregarArquivo(nomeArquivo)
+
+        val resource = UrlResource(caminhoArquivo.toUri())
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${resource.filename}\"")
+            .body(resource)
     }
 }

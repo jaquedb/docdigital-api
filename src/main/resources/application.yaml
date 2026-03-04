@@ -21,3 +21,6 @@ logging:
 
 jwt:
   secret: docdigital-super-secret-key-2026
+
+file:
+  upload-dir: uploads
