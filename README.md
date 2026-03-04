@@ -131,13 +131,13 @@ multipart/form-data
 
 Campos:
 
-  Campo            Descrição
-  ---------------- ------------------------
-  file             arquivo do documento
-  nome             nome do documento
-  descricao        descrição opcional
-  categoria        categoria do documento
-  dataVencimento   data opcional
+| Campo | Descrição |
+|------|-----------|
+| file | arquivo do documento |
+| nome | nome do documento |
+| descricao | descricao opcional |
+| categoria | categoria do documento |
+| dataVencimento | data opcional |
 
 ------------------------------------------------------------------------
 
@@ -195,15 +195,15 @@ Retorna documentos: - vencidos - vencendo hoje - vencendo em breve
 
 Campos principais:
 
-id\
-nome\
-descricao\
-categoria\
-dataUpload\
-dataVencimento\
-tipoArquivo\
-caminhoArquivo\
-usuario
+id (Long)\
+nome (String)\
+descricao (String)\
+categoria (Enum)\
+dataUpload (LocalDateTime)\
+dataVencimento (LocalDate)\
+tipoArquivo (String)\
+caminhoArquivo (String)\
+usuario (Usuario)
 
 ------------------------------------------------------------------------
 
@@ -214,9 +214,11 @@ src/main/kotlin/com/docdigital/api
 config\
 controller\
 dto\
+exception\
 model\
 repository\
-service
+service\
+DocdigitalApplication.kt
 
 ------------------------------------------------------------------------
 
