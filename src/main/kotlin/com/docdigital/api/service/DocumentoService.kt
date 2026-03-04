@@ -66,4 +66,19 @@ open class DocumentoService(
 
         return documentoRepository.save(documento)
     }
+
+    // NOVO MÉTODO DE BUSCA POR PALAVRA-CHAVE
+    fun buscarPorPalavraChave(email: String, palavra: String): List<Documento> {
+
+        val usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
+
+        return documentoRepository
+            .findByUsuarioAndNomeContainingIgnoreCaseOrUsuarioAndDescricaoContainingIgnoreCase(
+                usuario,
+                palavra,
+                usuario,
+                palavra
+            )
+    }
 }

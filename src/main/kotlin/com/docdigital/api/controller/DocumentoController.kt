@@ -35,7 +35,6 @@ class DocumentoController(
 
         val email = authentication.name
 
-        // salva o arquivo no servidor
         val nomeArquivo = fileStorageService.salvarArquivo(file)
 
         val documento = Documento(
@@ -151,5 +150,34 @@ class DocumentoController(
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"${resource.filename}\"")
             .body(resource)
+    }
+
+    // NOVO ENDPOINT DE BUSCA POR PALAVRA-CHAVE
+    @GetMapping("/buscar")
+    fun buscarPorPalavraChave(
+        @RequestParam palavra: String
+    ): ResponseEntity<List<DocumentoResponse>> {
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw IllegalArgumentException("Usuário não autenticado")
+
+        val email = authentication.name
+
+        val documentos = documentoService.buscarPorPalavraChave(email, palavra)
+
+        val response = documentos.map {
+            DocumentoResponse(
+                id = it.id,
+                nome = it.nome,
+                descricao = it.descricao,
+                categoria = it.categoria,
+                dataUpload = it.dataUpload,
+                dataVencimento = it.dataVencimento,
+                caminhoArquivo = it.caminhoArquivo,
+                tipoArquivo = it.tipoArquivo
+            )
+        }
+
+        return ResponseEntity.ok(response)
     }
 }
