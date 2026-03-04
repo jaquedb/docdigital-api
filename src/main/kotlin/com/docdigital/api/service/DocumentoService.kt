@@ -1,10 +1,13 @@
 package com.docdigital.api.service
 
+import com.docdigital.api.dto.AlertaDocumentosResponse
 import com.docdigital.api.dto.DocumentoRequest
+import com.docdigital.api.dto.DocumentoResponse
 import com.docdigital.api.model.Documento
 import com.docdigital.api.repository.DocumentoRepository
 import com.docdigital.api.repository.UsuarioRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 open class DocumentoService(
@@ -67,7 +70,7 @@ open class DocumentoService(
         return documentoRepository.save(documento)
     }
 
-    // NOVO MÉTODO DE BUSCA POR PALAVRA-CHAVE
+    // MÉTODO DE BUSCA POR PALAVRA-CHAVE
     fun buscarPorPalavraChave(email: String, palavra: String): List<Documento> {
 
         val usuario = usuarioRepository.findByEmail(email)
@@ -80,5 +83,89 @@ open class DocumentoService(
                 usuario,
                 palavra
             )
+    }
+
+    // MÉTODO DE ALERTAS DE VENCIMENTO
+    fun verificarAlertas(email: String): AlertaDocumentosResponse {
+
+        val usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
+
+        val hoje = LocalDate.now()
+
+        val vencidos = documentoRepository
+            .findByUsuarioAndDataVencimentoBefore(usuario, hoje)
+
+        val venceHoje = documentoRepository
+            .findByUsuarioAndDataVencimento(usuario, hoje)
+
+        val venceEm5Dias = documentoRepository
+            .findByUsuarioAndDataVencimentoBetween(
+                usuario,
+                hoje.plusDays(1),
+                hoje.plusDays(5)
+            )
+
+        val venceEm10Dias = documentoRepository
+            .findByUsuarioAndDataVencimentoBetween(
+                usuario,
+                hoje.plusDays(6),
+                hoje.plusDays(10)
+            )
+
+        return AlertaDocumentosResponse(
+
+            vencidos = vencidos.map {
+                DocumentoResponse(
+                    id = it.id,
+                    nome = it.nome,
+                    descricao = it.descricao,
+                    categoria = it.categoria,
+                    dataUpload = it.dataUpload,
+                    dataVencimento = it.dataVencimento,
+                    caminhoArquivo = it.caminhoArquivo,
+                    tipoArquivo = it.tipoArquivo
+                )
+            },
+
+            venceHoje = venceHoje.map {
+                DocumentoResponse(
+                    id = it.id,
+                    nome = it.nome,
+                    descricao = it.descricao,
+                    categoria = it.categoria,
+                    dataUpload = it.dataUpload,
+                    dataVencimento = it.dataVencimento,
+                    caminhoArquivo = it.caminhoArquivo,
+                    tipoArquivo = it.tipoArquivo
+                )
+            },
+
+            venceEm5Dias = venceEm5Dias.map {
+                DocumentoResponse(
+                    id = it.id,
+                    nome = it.nome,
+                    descricao = it.descricao,
+                    categoria = it.categoria,
+                    dataUpload = it.dataUpload,
+                    dataVencimento = it.dataVencimento,
+                    caminhoArquivo = it.caminhoArquivo,
+                    tipoArquivo = it.tipoArquivo
+                )
+            },
+
+            venceEm10Dias = venceEm10Dias.map {
+                DocumentoResponse(
+                    id = it.id,
+                    nome = it.nome,
+                    descricao = it.descricao,
+                    categoria = it.categoria,
+                    dataUpload = it.dataUpload,
+                    dataVencimento = it.dataVencimento,
+                    caminhoArquivo = it.caminhoArquivo,
+                    tipoArquivo = it.tipoArquivo
+                )
+            }
+        )
     }
 }

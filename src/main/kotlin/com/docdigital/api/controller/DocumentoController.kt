@@ -1,5 +1,6 @@
 package com.docdigital.api.controller
 
+import com.docdigital.api.dto.AlertaDocumentosResponse
 import com.docdigital.api.dto.DocumentoResponse
 import com.docdigital.api.model.CategoriaDocumento
 import com.docdigital.api.model.Documento
@@ -152,7 +153,7 @@ class DocumentoController(
             .body(resource)
     }
 
-    // NOVO ENDPOINT DE BUSCA POR PALAVRA-CHAVE
+    // ENDPOINT DE BUSCA POR PALAVRA-CHAVE
     @GetMapping("/buscar")
     fun buscarPorPalavraChave(
         @RequestParam palavra: String
@@ -180,4 +181,19 @@ class DocumentoController(
 
         return ResponseEntity.ok(response)
     }
+
+    // NOVO ENDPOINT DE ALERTAS
+    @GetMapping("/alertas")
+    fun verificarAlertas(): ResponseEntity<AlertaDocumentosResponse> {
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw IllegalArgumentException("Usuário não autenticado")
+
+        val email = authentication.name
+
+        val alertas = documentoService.verificarAlertas(email)
+
+        return ResponseEntity.ok(alertas)
+    }
+
 }
