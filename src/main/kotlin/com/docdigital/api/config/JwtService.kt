@@ -2,18 +2,26 @@ package com.docdigital.api.config
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
 
 @Service
-class JwtService {
+class JwtService(
 
-    private val secretKey: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
+    @Value("\${jwt.secret}")
+    private val secret: String
+
+) {
+
+    private fun getSignKey(): SecretKey {
+        return Keys.hmacShaKeyFor(secret.toByteArray())
+    }
 
     fun generateToken(email: String): String {
+
         val now = Date()
         val expiration = Date(now.time + 1000 * 60 * 60) // 1 hora
 
@@ -21,7 +29,7 @@ class JwtService {
             .setSubject(email)
             .setIssuedAt(now)
             .setExpiration(expiration)
-            .signWith(secretKey)
+            .signWith(getSignKey())
             .compact()
     }
 
@@ -36,7 +44,7 @@ class JwtService {
 
     private fun extractAllClaims(token: String): Claims {
         return Jwts.parserBuilder()
-            .setSigningKey(secretKey)
+            .setSigningKey(getSignKey())
             .build()
             .parseClaimsJws(token)
             .body
