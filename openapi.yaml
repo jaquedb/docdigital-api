@@ -1,0 +1,134 @@
+openapi: 3.0.0
+info:
+  title: DocDigital API
+  version: 1.0.0
+  description: ''
+servers:
+  - url: http://localhost:8080
+paths:
+  /usuarios:
+    post:
+      summary: Criar usuário
+      responses: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                senha:
+                  type: string
+                  format: color
+            example:
+              nome: Usuario
+              email: usuario@email.com
+              senha: '123456'
+  /auth/login:
+    post:
+      summary: Login
+      responses: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                senha:
+                  type: string
+                  format: color
+            example:
+              email: usuario@email.com
+              senha: '123456'
+  /documentos:
+    post:
+      summary: Upload Documento
+      responses: {}
+      security:
+        - BearerAuth: []
+    get:
+      summary: Listar Documentos
+      responses: {}
+      security:
+        - BearerAuth: []
+  /documentos/buscar:
+    get:
+      summary: Buscar Documento
+      parameters:
+        - name: palavra
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: RG
+      responses: {}
+      security:
+        - BearerAuth: []
+  /documentos/1:
+    put:
+      summary: Atualizar Documento
+      responses: {}
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                descricao:
+                  type: string
+                categoria:
+                  type: string
+                caminhoArquivo:
+                  type: string
+                tipoArquivo:
+                  type: string
+                dataVencimento:
+                  type: string
+                  format: date
+            example:
+              nome: RG Atualizado
+              descricao: Documento atualizado
+              categoria: OUTROS
+              caminhoArquivo: >-
+                9e051104-5991-482d-a884-dace4a039c03_96a15f36-95cf-421a-ba58-e4adc77b4305_Planet9_3840x2160.jpg
+              tipoArquivo: application/pdf
+              dataVencimento: '2031-01-01'
+    delete:
+      summary: Deletar Documento
+      responses: {}
+      security:
+        - BearerAuth: []
+  /documentos/download/9e051104-5991-482d-a884-dace4a039c03_96a15f36-95cf-421a-ba58-e4adc77b4305_Planet9_3840x2160.jpg:
+    get:
+      summary: Download Documento
+      responses: {}
+      security:
+        - BearerAuth: []
+  /documentos/visualizar/9e051104-5991-482d-a884-dace4a039c03_96a15f36-95cf-421a-ba58-e4adc77b4305_Planet9_3840x2160.jpg:
+    get:
+      summary: Visualizar Documento
+      responses: {}
+      security:
+        - BearerAuth: []
+  /documentos/alertas:
+    get:
+      summary: Alertas de Vencimento
+      responses: {}
+      security:
+        - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

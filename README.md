@@ -270,6 +270,20 @@ permitirá digitalizar e organizar documentos diretamente pelo celular.
 
 ------------------------------------------------------------------------
 
+## 📄 Documentação da API
+
+A especificação completa da API está disponível no arquivo:
+
+openapi.yaml
+
+Este arquivo segue o padrão *OpenAPI 3.0* e pode ser importado em ferramentas como:
+
+- Postman
+- Swagger
+- Insomnia
+
+------------------------------------------------------------------------
+
 # 👨‍💻 Autor
 
 Projeto desenvolvido por **Jaqueline** para fins acadêmicos.
