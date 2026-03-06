@@ -22,6 +22,11 @@ class SecurityConfig(
                 auth
                     .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+
+                    // liberar recuperação de senha
+                    .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
+
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
