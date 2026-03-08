@@ -36,6 +36,10 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
 
+                    // liberar visualização e download de arquivos
+                    .requestMatchers(HttpMethod.GET, "/documentos/visualizar/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/documentos/download/**").permitAll()
+
                     .anyRequest().authenticated()
             }
 
