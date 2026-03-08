@@ -20,7 +20,7 @@ class SecurityConfig(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
         http
-            .cors { } // habilita CORS
+            .cors { }
             .csrf { it.disable() }
 
             .sessionManagement {
@@ -29,17 +29,23 @@ class SecurityConfig(
 
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
 
-                    // recuperação de senha
+                    // cadastro de usuário
+                    .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
+
+                    // autenticação
+                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
 
-                    // liberar visualização e download de arquivos
+                    // acesso público aos arquivos
                     .requestMatchers(HttpMethod.GET, "/documentos/visualizar/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/documentos/download/**").permitAll()
 
+                    // necessário para CORS (preflight)
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                    // resto protegido por JWT
                     .anyRequest().authenticated()
             }
 
@@ -56,7 +62,7 @@ class SecurityConfig(
 
         val configuration = CorsConfiguration()
 
-        // aceita qualquer porta do localhost (Flutter Web muda a porta)
+        // Flutter Web usa portas aleatórias
         configuration.allowedOriginPatterns = listOf("*")
 
         configuration.allowedMethods = listOf(
@@ -68,6 +74,12 @@ class SecurityConfig(
         )
 
         configuration.allowedHeaders = listOf("*")
+
+        configuration.exposedHeaders = listOf(
+            "Authorization",
+            "Content-Disposition"
+        )
+
         configuration.allowCredentials = true
 
         val source = UrlBasedCorsConfigurationSource()
@@ -75,5 +87,4 @@ class SecurityConfig(
 
         return source
     }
-
 }

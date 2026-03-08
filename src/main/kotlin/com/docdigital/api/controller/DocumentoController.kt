@@ -16,7 +16,7 @@ import java.nio.file.Path
 import java.time.LocalDate
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:"])
+@CrossOrigin(origins = ["*"])
 @RequestMapping("/documentos")
 class DocumentoController(
     private val documentoService: DocumentoService,
