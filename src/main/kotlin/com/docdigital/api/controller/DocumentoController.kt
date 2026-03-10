@@ -8,6 +8,7 @@ import com.docdigital.api.service.DocumentoService
 import com.docdigital.api.service.FileStorageService
 import org.springframework.core.io.UrlResource
 import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
@@ -149,7 +150,16 @@ class DocumentoController(
 
         val resource = UrlResource(caminhoArquivo.toUri())
 
+        val contentType = when {
+            nomeArquivo.endsWith(".png", true) -> MediaType.IMAGE_PNG
+            nomeArquivo.endsWith(".jpg", true) -> MediaType.IMAGE_JPEG
+            nomeArquivo.endsWith(".jpeg", true) -> MediaType.IMAGE_JPEG
+            nomeArquivo.endsWith(".pdf", true) -> MediaType.APPLICATION_PDF
+            else -> MediaType.APPLICATION_OCTET_STREAM
+        }
+
         return ResponseEntity.ok()
+            .contentType(contentType)
             .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"${resource.filename}\"")
             .body(resource)
     }
@@ -183,7 +193,7 @@ class DocumentoController(
         return ResponseEntity.ok(response)
     }
 
-    // NOVO ENDPOINT DE ALERTAS
+    // ENDPOINT DE ALERTAS
     @GetMapping("/alertas")
     fun verificarAlertas(): ResponseEntity<AlertaDocumentosResponse> {
 
@@ -196,5 +206,4 @@ class DocumentoController(
 
         return ResponseEntity.ok(alertas)
     }
-
 }
