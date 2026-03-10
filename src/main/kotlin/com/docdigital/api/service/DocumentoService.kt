@@ -63,8 +63,6 @@ open class DocumentoService(
         documento.nome = request.nome
         documento.descricao = request.descricao
         documento.categoria = request.categoria
-        documento.caminhoArquivo = request.caminhoArquivo
-        documento.tipoArquivo = request.tipoArquivo
         documento.dataVencimento = request.dataVencimento
 
         return documentoRepository.save(documento)
