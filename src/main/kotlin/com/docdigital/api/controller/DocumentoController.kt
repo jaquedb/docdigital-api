@@ -51,7 +51,7 @@ class DocumentoController(
 
         val documentoSalvo = documentoService.cadastrarPorEmail(documento, email)
 
-        val response = DocumentoResponse(
+        val response = DocumentoResponse.from(
             id = documentoSalvo.id,
             nome = documentoSalvo.nome,
             descricao = documentoSalvo.descricao,
@@ -76,7 +76,7 @@ class DocumentoController(
         val documentos = documentoService.listarPorEmail(email)
 
         val response = documentos.map {
-            DocumentoResponse(
+            DocumentoResponse.from(
                 id = it.id,
                 nome = it.nome,
                 descricao = it.descricao,
@@ -104,7 +104,7 @@ class DocumentoController(
 
         val documentoAtualizado = documentoService.atualizarPorIdEEmail(id, request, email)
 
-        val response = DocumentoResponse(
+        val response = DocumentoResponse.from(
             id = documentoAtualizado.id,
             nome = documentoAtualizado.nome,
             descricao = documentoAtualizado.descricao,
@@ -164,7 +164,6 @@ class DocumentoController(
             .body(resource)
     }
 
-    // ENDPOINT DE BUSCA POR PALAVRA-CHAVE
     @GetMapping("/buscar")
     fun buscarPorPalavraChave(
         @RequestParam palavra: String
@@ -178,7 +177,7 @@ class DocumentoController(
         val documentos = documentoService.buscarPorPalavraChave(email, palavra)
 
         val response = documentos.map {
-            DocumentoResponse(
+            DocumentoResponse.from(
                 id = it.id,
                 nome = it.nome,
                 descricao = it.descricao,
@@ -193,7 +192,6 @@ class DocumentoController(
         return ResponseEntity.ok(response)
     }
 
-    // ENDPOINT DE ALERTAS
     @GetMapping("/alertas")
     fun verificarAlertas(): ResponseEntity<AlertaDocumentosResponse> {
 

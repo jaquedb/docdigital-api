@@ -114,7 +114,7 @@ open class DocumentoService(
         return AlertaDocumentosResponse(
 
             vencidos = vencidos.map {
-                DocumentoResponse(
+                DocumentoResponse.from(
                     id = it.id,
                     nome = it.nome,
                     descricao = it.descricao,
@@ -127,7 +127,7 @@ open class DocumentoService(
             },
 
             venceHoje = venceHoje.map {
-                DocumentoResponse(
+                DocumentoResponse.from(
                     id = it.id,
                     nome = it.nome,
                     descricao = it.descricao,
@@ -140,7 +140,7 @@ open class DocumentoService(
             },
 
             venceEm5Dias = venceEm5Dias.map {
-                DocumentoResponse(
+                DocumentoResponse.from(
                     id = it.id,
                     nome = it.nome,
                     descricao = it.descricao,
@@ -153,7 +153,7 @@ open class DocumentoService(
             },
 
             venceEm10Dias = venceEm10Dias.map {
-                DocumentoResponse(
+                DocumentoResponse.from(
                     id = it.id,
                     nome = it.nome,
                     descricao = it.descricao,
