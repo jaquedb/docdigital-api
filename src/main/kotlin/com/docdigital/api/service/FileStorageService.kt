@@ -3,6 +3,7 @@ package com.docdigital.api.service
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
+import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -55,8 +56,8 @@ class FileStorageService(
             val imagem: BufferedImage = ImageIO.read(file.inputStream)
 
             val documento = PDDocument()
-            val pagina = PDPage()
 
+            val pagina = PDPage(PDRectangle.A4)
             documento.addPage(pagina)
 
             val imageObject = PDImageXObject.createFromByteArray(
@@ -65,17 +66,31 @@ class FileStorageService(
                 nomeOriginal
             )
 
-            val contentStream = PDPageContentStream(documento, pagina)
-
             val larguraPagina = pagina.mediaBox.width
             val alturaPagina = pagina.mediaBox.height
 
+            val larguraImagem = imageObject.width.toFloat()
+            val alturaImagem = imageObject.height.toFloat()
+
+            val escala = minOf(
+                larguraPagina / larguraImagem,
+                alturaPagina / alturaImagem
+            )
+
+            val larguraFinal = larguraImagem * escala
+            val alturaFinal = alturaImagem * escala
+
+            val posX = (larguraPagina - larguraFinal) / 2
+            val posY = (alturaPagina - alturaFinal) / 2
+
+            val contentStream = PDPageContentStream(documento, pagina)
+
             contentStream.drawImage(
                 imageObject,
-                0f,
-                0f,
-                larguraPagina,
-                alturaPagina
+                posX,
+                posY,
+                larguraFinal,
+                alturaFinal
             )
 
             contentStream.close()
