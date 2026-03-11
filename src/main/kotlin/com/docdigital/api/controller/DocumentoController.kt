@@ -66,6 +66,52 @@ class DocumentoController(
         return ResponseEntity.ok(response)
     }
 
+    // NOVO ENDPOINT PARA MULTIPÁGINA
+    @PostMapping("/multipage", consumes = ["multipart/form-data"])
+    fun cadastrarMultipage(
+        @RequestParam("files") files: List<MultipartFile>,
+        @RequestParam nome: String,
+        @RequestParam(required = false) descricao: String?,
+        @RequestParam categoria: CategoriaDocumento,
+        @RequestParam(required = false) dataVencimento: String?
+    ): ResponseEntity<DocumentoResponse> {
+
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw IllegalArgumentException("Usuário não autenticado")
+
+        val email = authentication.name
+
+        if (files.isEmpty()) {
+            throw IllegalArgumentException("Nenhum arquivo enviado")
+        }
+
+        val nomeArquivo = fileStorageService.salvarArquivosMultipage(files)
+
+        val documento = Documento(
+            nome = nome,
+            descricao = descricao,
+            categoria = categoria,
+            caminhoArquivo = nomeArquivo,
+            tipoArquivo = "application/pdf",
+            dataVencimento = dataVencimento?.let { LocalDate.parse(it) }
+        )
+
+        val documentoSalvo = documentoService.cadastrarPorEmail(documento, email)
+
+        val response = DocumentoResponse.from(
+            id = documentoSalvo.id,
+            nome = documentoSalvo.nome,
+            descricao = documentoSalvo.descricao,
+            categoria = documentoSalvo.categoria,
+            dataUpload = documentoSalvo.dataUpload,
+            dataVencimento = documentoSalvo.dataVencimento,
+            caminhoArquivo = documentoSalvo.caminhoArquivo,
+            tipoArquivo = documentoSalvo.tipoArquivo
+        )
+
+        return ResponseEntity.ok(response)
+    }
+
     @GetMapping
     fun listarTodos(): ResponseEntity<List<DocumentoResponse>> {
 
@@ -132,7 +178,6 @@ class DocumentoController(
         return ResponseEntity.noContent().build()
     }
 
-    // DOWNLOAD CORRIGIDO
     @GetMapping("/download/{nomeArquivo}")
     fun downloadArquivo(@PathVariable nomeArquivo: String): ResponseEntity<UrlResource> {
 

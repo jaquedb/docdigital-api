@@ -137,8 +137,8 @@ class FileStorageService(
 
         val g = imagemNova.createGraphics()
 
-        val escalaContraste = 1.2f   // aumenta contraste levemente
-        val brilho = 5f              // pequeno ajuste de brilho
+        val escalaContraste = 1.2f
+        val brilho = 5f
 
         val op = java.awt.image.RescaleOp(
             floatArrayOf(escalaContraste, escalaContraste, escalaContraste),
@@ -160,5 +160,69 @@ class FileStorageService(
         ImageIO.write(imagem, "jpg", outputStream)
 
         return outputStream.toByteArray()
+    }
+
+    // NOVO MÉTODO PARA PDF MULTIPÁGINA
+    fun salvarArquivosMultipage(files: List<MultipartFile>): String {
+
+        val uploadPath: Path = Paths.get(uploadDir)
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath)
+        }
+
+        val nomeFinal = "${UUID.randomUUID()}.pdf"
+        val caminhoArquivo = uploadPath.resolve(nomeFinal)
+
+        val documento = PDDocument()
+
+        files.forEach { file ->
+
+            val imagemOriginal: BufferedImage = ImageIO.read(file.inputStream)
+            val imagem = melhorarImagem(imagemOriginal)
+
+            val pagina = PDPage(PDRectangle.A4)
+            documento.addPage(pagina)
+
+            val imageObject = PDImageXObject.createFromByteArray(
+                documento,
+                bufferedImageToBytes(imagem),
+                file.originalFilename ?: "pagina"
+            )
+
+            val larguraPagina = pagina.mediaBox.width
+            val alturaPagina = pagina.mediaBox.height
+
+            val larguraImagem = imageObject.width.toFloat()
+            val alturaImagem = imageObject.height.toFloat()
+
+            val escala = minOf(
+                larguraPagina / larguraImagem,
+                alturaPagina / alturaImagem
+            )
+
+            val larguraFinal = larguraImagem * escala
+            val alturaFinal = alturaImagem * escala
+
+            val posX = (larguraPagina - larguraFinal) / 2
+            val posY = (alturaPagina - alturaFinal) / 2
+
+            val contentStream = PDPageContentStream(documento, pagina)
+
+            contentStream.drawImage(
+                imageObject,
+                posX,
+                posY,
+                larguraFinal,
+                alturaFinal
+            )
+
+            contentStream.close()
+        }
+
+        documento.save(caminhoArquivo.toFile())
+        documento.close()
+
+        return nomeFinal
     }
 }
