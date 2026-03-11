@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -53,7 +54,11 @@ class FileStorageService(
             val nomeFinal = "${nomeUnico}.pdf"
             val caminhoArquivo = uploadPath.resolve(nomeFinal)
 
-            val imagem: BufferedImage = ImageIO.read(file.inputStream)
+            // LEITURA ORIGINAL
+            val imagemOriginal: BufferedImage = ImageIO.read(file.inputStream)
+
+            // MELHORIA DA IMAGEM
+            val imagem = melhorarImagem(imagemOriginal)
 
             val documento = PDDocument()
 
@@ -62,7 +67,7 @@ class FileStorageService(
 
             val imageObject = PDImageXObject.createFromByteArray(
                 documento,
-                file.bytes,
+                bufferedImageToBytes(imagem),
                 nomeOriginal
             )
 
@@ -121,5 +126,39 @@ class FileStorageService(
         }
 
         return caminhoArquivo
+    }
+
+    private fun melhorarImagem(imagem: BufferedImage): BufferedImage {
+
+        val largura = imagem.width
+        val altura = imagem.height
+
+        val imagemNova = BufferedImage(largura, altura, BufferedImage.TYPE_INT_RGB)
+
+        val g = imagemNova.createGraphics()
+
+        val escalaContraste = 1.2f   // aumenta contraste levemente
+        val brilho = 5f              // pequeno ajuste de brilho
+
+        val op = java.awt.image.RescaleOp(
+            floatArrayOf(escalaContraste, escalaContraste, escalaContraste),
+            floatArrayOf(brilho, brilho, brilho),
+            null
+        )
+
+        val imagemProcessada = op.filter(imagem, null)
+
+        g.drawImage(imagemProcessada, 0, 0, null)
+        g.dispose()
+
+        return imagemNova
+    }
+
+    private fun bufferedImageToBytes(imagem: BufferedImage): ByteArray {
+
+        val outputStream = ByteArrayOutputStream()
+        ImageIO.write(imagem, "jpg", outputStream)
+
+        return outputStream.toByteArray()
     }
 }
