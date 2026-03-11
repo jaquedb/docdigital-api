@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
 
@@ -131,6 +132,7 @@ class DocumentoController(
         return ResponseEntity.noContent().build()
     }
 
+    // DOWNLOAD CORRIGIDO
     @GetMapping("/download/{nomeArquivo}")
     fun downloadArquivo(@PathVariable nomeArquivo: String): ResponseEntity<UrlResource> {
 
@@ -138,8 +140,17 @@ class DocumentoController(
 
         val resource = UrlResource(caminhoArquivo.toUri())
 
+        val contentType = Files.probeContentType(caminhoArquivo)?.let {
+            MediaType.parseMediaType(it)
+        } ?: MediaType.APPLICATION_OCTET_STREAM
+
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${resource.filename}\"")
+            .contentType(contentType)
+            .contentLength(Files.size(caminhoArquivo))
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"${resource.filename}\""
+            )
             .body(resource)
     }
 
