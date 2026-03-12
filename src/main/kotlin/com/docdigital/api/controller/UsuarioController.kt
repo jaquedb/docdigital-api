@@ -4,6 +4,7 @@ import com.docdigital.api.dto.UsuarioRequest
 import com.docdigital.api.dto.UsuarioResponse
 import com.docdigital.api.model.Usuario
 import com.docdigital.api.service.UsuarioService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -14,7 +15,7 @@ class UsuarioController(
 ) {
 
     @PostMapping
-    fun cadastrar(@RequestBody request: UsuarioRequest): ResponseEntity<UsuarioResponse> {
+    fun cadastrar(@Valid @RequestBody request: UsuarioRequest): ResponseEntity<UsuarioResponse> {
 
         val usuario = Usuario(
             nome = request.nome,
