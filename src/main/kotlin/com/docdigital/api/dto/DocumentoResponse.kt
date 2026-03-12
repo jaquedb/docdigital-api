@@ -29,9 +29,6 @@ data class DocumentoResponse(
         ): DocumentoResponse {
 
             val categoriaFormatada = categoria.name
-                .lowercase()
-                .replace("_", " ")
-                .replaceFirstChar { it.uppercase() }
 
             return DocumentoResponse(
                 id,
