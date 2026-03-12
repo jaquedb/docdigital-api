@@ -23,7 +23,7 @@ class JwtService(
     fun generateToken(email: String): String {
 
         val now = Date()
-        val expiration = Date(now.time + 1000L * 60 * 60 * 24 * 30) // 30 dia
+        val expiration = Date(now.time + 1000L * 60 * 60 * 24 * 365) // 1 ano
 
         return Jwts.builder()
             .setSubject(email)
