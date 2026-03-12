@@ -23,7 +23,9 @@ class AuthController(
     @PostMapping("/login")
     fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
 
-        val usuario = usuarioRepository.findByEmail(request.email)
+        val emailNormalizado = request.email.lowercase()
+
+        val usuario = usuarioRepository.findByEmail(emailNormalizado)
             .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
         val senhaValida = passwordEncoder.matches(request.senha, usuario.senha)
@@ -41,13 +43,15 @@ class AuthController(
     @PostMapping("/forgot-password")
     fun forgotPassword(@RequestParam email: String): ResponseEntity<Map<String, String>> {
 
-        val usuario = usuarioRepository.findByEmail(email)
+        val emailNormalizado = email.lowercase()
+
+        val usuario = usuarioRepository.findByEmail(emailNormalizado)
             .orElseThrow { IllegalArgumentException("Email não encontrado") }
 
         // gera código de 6 dígitos
         val codigo = (100000..999999).random().toString()
 
-        codigosRecuperacao[email] = codigo
+        codigosRecuperacao[emailNormalizado] = codigo
 
         return ResponseEntity.ok(
             mapOf("codigo" to codigo)
@@ -62,10 +66,12 @@ class AuthController(
         @RequestParam novaSenha: String
     ): ResponseEntity<Map<String, String>> {
 
-        val usuario = usuarioRepository.findByEmail(email)
+        val emailNormalizado = email.lowercase()
+
+        val usuario = usuarioRepository.findByEmail(emailNormalizado)
             .orElseThrow { IllegalArgumentException("Email não encontrado") }
 
-        val codigoSalvo = codigosRecuperacao[email]
+        val codigoSalvo = codigosRecuperacao[emailNormalizado]
             ?: throw IllegalArgumentException("Nenhum código solicitado para este email")
 
         if (codigoSalvo != codigo) {
@@ -81,7 +87,7 @@ class AuthController(
         usuarioRepository.save(usuario)
 
         // remove código após uso
-        codigosRecuperacao.remove(email)
+        codigosRecuperacao.remove(emailNormalizado)
 
         return ResponseEntity.ok(
             mapOf("mensagem" to "Senha redefinida com sucesso")

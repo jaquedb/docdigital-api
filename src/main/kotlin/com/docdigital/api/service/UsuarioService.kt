@@ -13,6 +13,9 @@ class UsuarioService(
 
     fun cadastrar(usuario: Usuario): Usuario {
 
+        val emailNormalizado = usuario.email.lowercase()
+        usuario.email = emailNormalizado
+
         val senhaOriginal = usuario.senha
             ?: throw IllegalArgumentException("Senha é obrigatória")
 
@@ -20,12 +23,10 @@ class UsuarioService(
             throw IllegalArgumentException("Email já cadastrado")
         }
 
-
         val senhaCriptografada = passwordEncoder.encode(senhaOriginal)
             ?: throw RuntimeException("Erro ao criptografar senha")
 
         usuario.senha = senhaCriptografada
-
 
         return usuarioRepository.save(usuario)
     }
