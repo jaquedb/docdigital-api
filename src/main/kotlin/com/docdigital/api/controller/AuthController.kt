@@ -36,7 +36,7 @@ class AuthController(
 
         val token = jwtService.generateToken(usuario.email)
 
-        return ResponseEntity.ok(LoginResponse(token))
+        return ResponseEntity.ok(LoginResponse(token,usuario.nome))
     }
 
     // Gera código de recuperação
