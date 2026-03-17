@@ -18,6 +18,18 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jaquelinediasbatista@gmail.com
+    password: bnkf iuvg ywhi lnsw
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -29,3 +41,4 @@ jwt:
 
 file:
   upload-dir: uploads
+

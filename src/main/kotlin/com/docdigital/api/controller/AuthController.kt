@@ -7,6 +7,7 @@ import com.docdigital.api.repository.UsuarioRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
+import com.docdigital.api.service.EmailService
 
 @RestController
 @CrossOrigin(origins = ["*"])
@@ -14,11 +15,12 @@ import org.springframework.web.bind.annotation.*
 class AuthController(
     private val usuarioRepository: UsuarioRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtService: JwtService
+    private val jwtService: JwtService,
+    private val emailService: EmailService
 ) {
 
     // Armazena códigos de recuperação em memória
-    private val codigosRecuperacao = mutableMapOf<String, String>()
+    private val codigosRecuperacao = mutableMapOf<String, Pair<String, Long>>()
 
     @PostMapping("/login")
     fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
@@ -51,10 +53,37 @@ class AuthController(
         // gera código de 6 dígitos
         val codigo = (100000..999999).random().toString()
 
-        codigosRecuperacao[emailNormalizado] = codigo
+        codigosRecuperacao[emailNormalizado] = Pair(codigo, System.currentTimeMillis()
+        )
+
+        val mensagemHtml = """
+    <div style="font-family: Arial; text-align: center;">
+        <h2 style="color: #4CAF50;">Recuperação de senha</h2>
+        
+        <p>Olá,</p>
+        
+        <p>Seu código de recuperação é:</p>
+        
+        <h1 style="font-size: 40px; color: #000;">$codigo</h1>
+        
+        <p>Este código expira em 10 minutos.</p>
+        
+        <hr>
+        
+        <p style="font-size: 12px; color: gray;">
+            Se você não solicitou isso, ignore este email.
+        </p>
+    </div>
+""".trimIndent()
+
+        emailService.enviarEmail(
+            emailNormalizado,
+            "Recuperação de senha - DocDigital",
+            mensagemHtml
+        )
 
         return ResponseEntity.ok(
-            mapOf("codigo" to codigo)
+            mapOf("mensagem" to "Código enviado para o email")
         )
     }
 
@@ -71,8 +100,21 @@ class AuthController(
         val usuario = usuarioRepository.findByEmail(emailNormalizado)
             .orElseThrow { IllegalArgumentException("Email não encontrado") }
 
-        val codigoSalvo = codigosRecuperacao[emailNormalizado]
+        val dadosCodigo = codigosRecuperacao[emailNormalizado]
             ?: throw IllegalArgumentException("Nenhum código solicitado para este email")
+
+        val codigoSalvo = dadosCodigo.first
+
+        val tempoGerado = dadosCodigo.second
+        val agora = System.currentTimeMillis()
+
+        val expirou = agora - tempoGerado > 600000
+
+        if (expirou){
+            codigosRecuperacao.remove(emailNormalizado)
+            throw IllegalArgumentException("Código expirado")
+        }
+
 
         if (codigoSalvo != codigo) {
             throw IllegalArgumentException("Código inválido")
