@@ -21,6 +21,9 @@ class Usuario(
     var senha: String,
 
     @Column(name = "data_criacao", nullable = false)
-    var dataCriacao: LocalDateTime = LocalDateTime.now()
+    var dataCriacao: LocalDateTime = LocalDateTime.now(),
+
+    @Column(name = "email_verificado", nullable = false)
+    var emailVerificado: Boolean = false
 
 )

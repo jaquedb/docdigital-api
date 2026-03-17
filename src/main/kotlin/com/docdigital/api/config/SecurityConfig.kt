@@ -37,6 +37,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/confirmar-cadastro").permitAll()
 
                     // acesso público aos arquivos
                     .requestMatchers(HttpMethod.GET, "/documentos/visualizar/**").permitAll()

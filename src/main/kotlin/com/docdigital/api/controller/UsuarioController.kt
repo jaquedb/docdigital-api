@@ -2,7 +2,6 @@ package com.docdigital.api.controller
 
 import com.docdigital.api.dto.UsuarioRequest
 import com.docdigital.api.dto.UsuarioResponse
-import com.docdigital.api.model.Usuario
 import com.docdigital.api.service.UsuarioService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -17,13 +16,11 @@ class UsuarioController(
     @PostMapping
     fun cadastrar(@Valid @RequestBody request: UsuarioRequest): ResponseEntity<UsuarioResponse> {
 
-        val usuario = Usuario(
-            nome = request.nome,
-            email = request.email,
-            senha = request.senha
+        val usuarioSalvo = usuarioService.cadastrarComVerificacao(
+            request.nome,
+            request.email,
+            request.senha
         )
-
-        val usuarioSalvo = usuarioService.cadastrar(usuario)
 
         val response = UsuarioResponse(
             id = usuarioSalvo.id,

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service
 @Service
 class UsuarioService(
     private val usuarioRepository: UsuarioRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val emailService: EmailService,
+    private val authService: AuthService
 ) {
 
     fun cadastrar(usuario: Usuario): Usuario {
@@ -29,5 +31,50 @@ class UsuarioService(
         usuario.senha = senhaCriptografada
 
         return usuarioRepository.save(usuario)
+    }
+
+    fun cadastrarComVerificacao(
+        nome: String,
+        email: String,
+        senha: String
+    ): Usuario {
+
+        val usuario = Usuario(
+            nome = nome,
+            email = email,
+            senha = senha
+        )
+
+        val usuarioSalvo = cadastrar(usuario)
+
+        val codigo = authService.gerarCodigo()
+
+        authService.salvarCodigoCadastro(usuarioSalvo.email, codigo)
+
+        val mensagemHtml = """
+            <div style="font-family: Arial; text-align: center;">
+                <h2 style="color: #4CAF50;">Bem-vindo ao DocDigital 📄</h2>
+                
+                <p>Seu código de confirmação é:</p>
+                
+                <h1 style="font-size: 40px;">$codigo</h1>
+                
+                <p>Digite esse código no app para ativar sua conta.</p>
+                
+                <hr>
+                
+                <p style="font-size: 12px; color: gray;">
+                    Se você não solicitou esse cadastro, ignore este email.
+                </p>
+            </div>
+        """.trimIndent()
+
+        emailService.enviarEmail(
+            usuarioSalvo.email,
+            "Confirmação de cadastro - DocDigital",
+            mensagemHtml
+        )
+
+        return usuarioSalvo
     }
 }
