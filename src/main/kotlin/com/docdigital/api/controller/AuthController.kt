@@ -21,7 +21,6 @@ class AuthController(
     private val authService: AuthService
 ) {
 
-    // Armazena códigos de recuperação em memória
     private val codigosRecuperacao = mutableMapOf<String, Pair<String, Long>>()
 
     @PostMapping("/login")
@@ -32,15 +31,14 @@ class AuthController(
         val usuario = usuarioRepository.findByEmail(emailNormalizado)
             .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
-        //  BLOQUEIO DE LOGIN
-        if (!usuario.emailVerificado) {
-            throw IllegalArgumentException("Email não verificado. Verifique seu email antes de fazer login.")
-        }
-
         val senhaValida = passwordEncoder.matches(request.senha, usuario.senha)
 
         if (!senhaValida) {
             throw IllegalArgumentException("Senha inválida")
+        }
+
+        if (!usuario.emailVerificado) {
+            throw IllegalArgumentException("Email não verificado")
         }
 
         val token = jwtService.generateToken(usuario.email)
@@ -48,7 +46,6 @@ class AuthController(
         return ResponseEntity.ok(LoginResponse(token, usuario.nome))
     }
 
-    // Gera código de recuperação
     @PostMapping("/forgot-password")
     fun forgotPassword(@RequestParam email: String): ResponseEntity<Map<String, String>> {
 
@@ -57,24 +54,28 @@ class AuthController(
         val usuario = usuarioRepository.findByEmail(emailNormalizado)
             .orElseThrow { IllegalArgumentException("Email não encontrado") }
 
-        val codigo = (100000..999999).random().toString()
+        val codigo = authService.gerarCodigo()
 
         codigosRecuperacao[emailNormalizado] =
             Pair(codigo, System.currentTimeMillis())
 
         val mensagemHtml = """
-            <div style="font-family: Arial; text-align: center;">
-                <h2 style="color: #4CAF50;">Recuperação de senha</h2>
-                <p>Olá,</p>
-                <p>Seu código de recuperação é:</p>
-                <h1 style="font-size: 40px; color: #000;">$codigo</h1>
-                <p>Este código expira em 10 minutos.</p>
-                <hr>
-                <p style="font-size: 12px; color: gray;">
-                    Se você não solicitou isso, ignore este email.
-                </p>
-            </div>
-        """.trimIndent()
+    <div style="font-family: Arial; text-align: center;">
+        <h2 style="color: #4CAF50;">Recuperação de senha 🔐</h2>
+        
+        <p>Seu código de recuperação é:</p>
+        
+        <h1 style="font-size: 40px;">$codigo</h1>
+        
+        <p>Use esse código para redefinir sua senha no app.</p>
+        
+        <hr>
+        
+        <p style="font-size: 12px; color: gray;">
+            Se você não solicitou essa recuperação, ignore este email.
+        </p>
+    </div>
+""".trimIndent()
 
         emailService.enviarEmail(
             emailNormalizado,
@@ -87,7 +88,6 @@ class AuthController(
         )
     }
 
-    // Redefinir senha
     @PostMapping("/reset-password")
     fun resetPassword(
         @RequestParam email: String,
@@ -101,15 +101,12 @@ class AuthController(
             .orElseThrow { IllegalArgumentException("Email não encontrado") }
 
         val dadosCodigo = codigosRecuperacao[emailNormalizado]
-            ?: throw IllegalArgumentException("Nenhum código solicitado para este email")
+            ?: throw IllegalArgumentException("Nenhum código solicitado")
 
         val codigoSalvo = dadosCodigo.first
         val tempoGerado = dadosCodigo.second
-        val agora = System.currentTimeMillis()
 
-        val expirou = agora - tempoGerado > 600000
-
-        if (expirou) {
+        if (authService.codigoExpirado(tempoGerado)) {
             codigosRecuperacao.remove(emailNormalizado)
             throw IllegalArgumentException("Código expirado")
         }
@@ -117,9 +114,8 @@ class AuthController(
         if (codigoSalvo != codigo) {
             throw IllegalArgumentException("Código inválido")
         }
-
-        if (!novaSenha.matches(Regex("^\\d{6}$"))) {
-            throw IllegalArgumentException("A senha deve ter exatamente 6 números")
+        if (novaSenha.length != 6 || !novaSenha.all { it.isDigit() }) {
+            throw IllegalArgumentException("A senha deve conter exatamente 6 números")
         }
 
         usuario.senha = passwordEncoder.encode(novaSenha)!!
@@ -129,6 +125,51 @@ class AuthController(
 
         return ResponseEntity.ok(
             mapOf("mensagem" to "Senha redefinida com sucesso")
+        )
+    }
+
+    @PostMapping("/reenviar-codigo")
+    fun reenviarCodigo(@RequestParam email: String): ResponseEntity<Map<String, String>> {
+
+        val emailNormalizado = email.lowercase()
+
+        val usuario = usuarioRepository.findByEmail(emailNormalizado)
+            .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
+
+        if (usuario.emailVerificado) {
+            throw IllegalArgumentException("Email já verificado")
+        }
+
+        val codigo = authService.gerarCodigo()
+
+        authService.salvarCodigoCadastro(emailNormalizado, codigo)
+
+        val mensagemHtml = """
+    <div style="font-family: Arial; text-align: center;">
+        <h2 style="color: #4CAF50;">Bem-vindo ao DocDigital 📄</h2>
+        
+        <p>Seu código de confirmação é:</p>
+        
+        <h1 style="font-size: 40px;">$codigo</h1>
+        
+        <p>Digite esse código no app para ativar sua conta.</p>
+        
+        <hr>
+        
+        <p style="font-size: 12px; color: gray;">
+            Se você não solicitou esse código, ignore este email.
+        </p>
+    </div>
+""".trimIndent()
+
+        emailService.enviarEmail(
+            emailNormalizado,
+            "Código de confirmação - DocDigital",
+            mensagemHtml
+        )
+
+        return ResponseEntity.ok(
+            mapOf("mensagem" to "Código reenviado com sucesso")
         )
     }
 
@@ -144,15 +185,12 @@ class AuthController(
             .orElseThrow { IllegalArgumentException("Usuário não encontrado") }
 
         val dadosCodigo = authService.obterCodigoCadastro(emailNormalizado)
-            ?: throw IllegalArgumentException("Nenhum código encontrado para este email")
+            ?: throw IllegalArgumentException("Nenhum código encontrado")
 
         val codigoSalvo = dadosCodigo.first
         val tempoGerado = dadosCodigo.second
 
-        val agora = System.currentTimeMillis()
-        val expirou = agora - tempoGerado > 600000
-
-        if (expirou) {
+        if (authService.codigoExpirado(tempoGerado)) {
             authService.removerCodigoCadastro(emailNormalizado)
             throw IllegalArgumentException("Código expirado")
         }
@@ -161,7 +199,6 @@ class AuthController(
             throw IllegalArgumentException("Código inválido")
         }
 
-        //  ATIVA USUÁRIO
         usuario.emailVerificado = true
         usuarioRepository.save(usuario)
 

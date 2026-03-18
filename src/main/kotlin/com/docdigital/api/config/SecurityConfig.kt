@@ -39,6 +39,9 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/confirmar-cadastro").permitAll()
 
+                    //
+                    .requestMatchers(HttpMethod.POST, "/auth/reenviar-codigo").permitAll()
+
                     // acesso público aos arquivos
                     .requestMatchers(HttpMethod.GET, "/documentos/visualizar/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/documentos/download/**").permitAll()
@@ -63,7 +66,6 @@ class SecurityConfig(
 
         val configuration = CorsConfiguration()
 
-        // Flutter Web usa portas aleatórias
         configuration.allowedOriginPatterns = listOf("*")
 
         configuration.allowedMethods = listOf(
