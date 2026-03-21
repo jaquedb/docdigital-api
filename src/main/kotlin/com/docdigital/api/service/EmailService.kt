@@ -16,9 +16,10 @@ class EmailService(
 
         val helper = MimeMessageHelper(mensagem, true, "UTF-8")
 
+        helper.setFrom("DocDigital <docdigital.app@gmail.com>")
         helper.setTo(destinatario)
         helper.setSubject(assunto)
-        helper.setText(mensagemHtml, true) // true = HTML
+        helper.setText(mensagemHtml, true)
 
         mailSender.send(mensagem)
     }

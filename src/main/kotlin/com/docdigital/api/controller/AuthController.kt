@@ -59,23 +59,11 @@ class AuthController(
         codigosRecuperacao[emailNormalizado] =
             Pair(codigo, System.currentTimeMillis())
 
-        val mensagemHtml = """
-    <div style="font-family: Arial; text-align: center;">
-        <h2 style="color: #4CAF50;">Recuperação de senha 🔐</h2>
-        
-        <p>Seu código de recuperação é:</p>
-        
-        <h1 style="font-size: 40px;">$codigo</h1>
-        
-        <p>Use esse código para redefinir sua senha no app.</p>
-        
-        <hr>
-        
-        <p style="font-size: 12px; color: gray;">
-            Se você não solicitou essa recuperação, ignore este email.
-        </p>
-    </div>
-""".trimIndent()
+        val mensagemHtml = gerarTemplateEmail(
+            "Recuperação de senha 🔐",
+            codigo,
+            "Use esse código para redefinir sua senha no app."
+        )
 
         emailService.enviarEmail(
             emailNormalizado,
@@ -144,23 +132,10 @@ class AuthController(
 
         authService.salvarCodigoCadastro(emailNormalizado, codigo)
 
-        val mensagemHtml = """
-    <div style="font-family: Arial; text-align: center;">
-        <h2 style="color: #4CAF50;">Bem-vindo ao DocDigital 📄</h2>
-        
-        <p>Seu código de confirmação é:</p>
-        
-        <h1 style="font-size: 40px;">$codigo</h1>
-        
-        <p>Digite esse código no app para ativar sua conta.</p>
-        
-        <hr>
-        
-        <p style="font-size: 12px; color: gray;">
-            Se você não solicitou esse código, ignore este email.
-        </p>
-    </div>
-""".trimIndent()
+        val mensagemHtml = gerarTemplateEmail(
+            "Confirmação de cadastro", codigo,
+            "Digite esse código no app para ativar sua conta."
+        )
 
         emailService.enviarEmail(
             emailNormalizado,
@@ -207,5 +182,54 @@ class AuthController(
         return ResponseEntity.ok(
             mapOf("mensagem" to "Cadastro confirmado com sucesso")
         )
+    }
+
+    private fun gerarTemplateEmail(
+        titulo: String,
+        codigo: String,
+        mensagem: String
+    ): String {
+
+        return """
+        <div style="background-color: #0B0F1A; padding: 40px; font-family: Arial; text-align: center;">
+            
+            <div style="
+                max-width: 500px;
+                margin: auto;
+                background-color: #111827;
+                border-radius: 12px;
+                padding: 30px;
+                color: white;
+            ">
+                
+                <h2 style="color: #22c55e;">$titulo</h2>
+                
+                <p style="color: #d1d5db;">Seu código é:</p>
+                
+                <h1 style="
+                    font-size: 36px;
+                    letter-spacing: 4px;
+                    margin: 20px 0;
+                ">
+                    $codigo
+                </h1>
+                
+                <p style="color: #d1d5db;">
+                    $mensagem
+                </p>
+
+                <p style="color: #9ca3af; font-size: 12px; margin-top: 20px;">
+                    Este código expira em 10 minutos.
+                </p>
+
+                <hr style="margin: 20px 0; border-color: #374151;">
+
+                <p style="color: #6b7280; font-size: 12px;">
+                    Se você não solicitou isso, ignore este email.
+                </p>
+
+            </div>
+        </div>
+    """.trimIndent()
     }
 }
