@@ -43,7 +43,14 @@ class AuthController(
 
         val token = jwtService.generateToken(usuario.email)
 
-        return ResponseEntity.ok(LoginResponse(token, usuario.nome))
+        return ResponseEntity.ok(
+            LoginResponse(
+                token = token,
+                nome = usuario.nome,
+                id = usuario.id
+            )
+        )
+
     }
 
     @PostMapping("/forgot-password")

@@ -70,6 +70,15 @@ class UsuarioService(
         return usuarioSalvo
     }
 
+    fun atualizarFcmToken(usuarioId: Long, token: String) {
+        val usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow { RuntimeException("Usuário não encontrado") }
+
+        usuario.fcmToken = token
+
+        usuarioRepository.save(usuario)
+    }
+
     private fun gerarTemplateEmail(
         titulo: String,
         codigo: String,

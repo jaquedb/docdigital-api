@@ -24,6 +24,9 @@ class Usuario(
     var dataCriacao: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "email_verificado", nullable = false)
-    var emailVerificado: Boolean = false
+    var emailVerificado: Boolean = false,
+
+    @Column(name = "fcm_token", columnDefinition = "text")
+    var fcmToken: String? = null
 
 )

@@ -29,13 +29,19 @@ open class Documento(
     var dataUpload: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "data_vencimento")
-    var dataVencimento: LocalDate? = null,  // 🔹 ALTERADO AQUI
+    var dataVencimento: LocalDate? = null,
 
     @Column(name = "caminho_arquivo", nullable = false, length = 255)
     var caminhoArquivo: String,
 
     @Column(name = "tipo_arquivo", nullable = false, length = 50)
-    var tipoArquivo: String
+    var tipoArquivo: String,
+
+    @Column(name = "notificado_3_dias", nullable = false)
+    var notificado3Dias: Boolean = false,
+
+    @Column(name = "notificado_hoje", nullable = false)
+    var notificadoHoje: Boolean = false
 
 ) {
 

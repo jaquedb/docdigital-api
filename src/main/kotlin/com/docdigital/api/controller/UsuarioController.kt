@@ -30,4 +30,20 @@ class UsuarioController(
 
         return ResponseEntity.ok(response)
     }
+
+    @PostMapping("/fcm-token")
+    fun salvarToken(
+        @RequestBody request: Map<String, String>
+    ): ResponseEntity<Void> {
+
+        val usuarioId = request["usuarioId"]?.toLong()
+            ?: throw IllegalArgumentException("usuarioId é obrigatório")
+
+        val token = request["token"]
+            ?: throw IllegalArgumentException("token é obrigatório")
+
+        usuarioService.atualizarFcmToken(usuarioId, token)
+
+        return ResponseEntity.ok().build()
+    }
 }

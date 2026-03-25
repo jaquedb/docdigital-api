@@ -12,7 +12,8 @@ import java.time.LocalDate
 @Service
 open class DocumentoService(
     private val documentoRepository: DocumentoRepository,
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val notificacaoService: NotificacaoService
 ) {
 
     fun cadastrarPorEmail(documento: Documento, email: String): Documento {
@@ -22,7 +23,19 @@ open class DocumentoService(
 
         documento.usuario = usuario
 
-        return documentoRepository.save(documento)
+        val docSalvo = documentoRepository.save(documento)
+
+        val token = usuario.fcmToken
+
+        if (token != null) {
+            notificacaoService.enviarNotificacao(
+                token,
+                "Documento cadastrado 📄",
+                "Seu documento '${docSalvo.nome}' foi salvo com sucesso"
+            )
+        }
+
+        return docSalvo
     }
 
     fun listarPorEmail(email: String): List<Documento> {
