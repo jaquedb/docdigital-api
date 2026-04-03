@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/docdigital}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:wellington}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/docdigital}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:wellington}
 
   jpa:
     hibernate:
@@ -44,4 +44,3 @@ file:
 
 server:
   port: ${PORT:8080}
-
