@@ -11,7 +11,7 @@ class NotificacaoScheduler(
     private val notificacaoService: NotificacaoService
 ) {
 
-    // PARA TESTE (roda a cada 30 segundos)
+    // roda a cada 30 segundos
     @Scheduled(cron = "*/30 * * * * ?")
     fun verificarDocumentos() {
 
@@ -31,8 +31,8 @@ class NotificacaoScheduler(
             if (vencimento == hoje && !doc.notificadoHoje) {
                 notificacaoService.enviarNotificacao(
                     token,
-                    "⚠ Documento vencendo hoje!",
-                    "O documento '${doc.nome}' vence hoje."
+                    "⚠️ Documento vencendo hoje!",
+                    "📄 O documento '${doc.nome}' vence hoje."
                 )
 
                 doc.notificadoHoje = true
@@ -44,7 +44,7 @@ class NotificacaoScheduler(
                 notificacaoService.enviarNotificacao(
                     token,
                     "⏳ Documento vence em breve",
-                    "O documento '${doc.nome}' vence em 3 dias."
+                    "📄 O documento '${doc.nome}' vence em 3 dias."
                 )
 
                 doc.notificado3Dias = true
