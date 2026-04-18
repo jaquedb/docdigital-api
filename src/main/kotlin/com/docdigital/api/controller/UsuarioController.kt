@@ -19,7 +19,8 @@ class UsuarioController(
         val usuarioSalvo = usuarioService.cadastrarComVerificacao(
             request.nome,
             request.email,
-            request.senha
+            request.senha,
+            request.aceitouPrivacidade
         )
 
         val response = UsuarioResponse(

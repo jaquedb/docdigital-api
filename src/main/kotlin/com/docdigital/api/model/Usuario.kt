@@ -27,6 +27,9 @@ class Usuario(
     var emailVerificado: Boolean = false,
 
     @Column(name = "fcm_token", columnDefinition = "text")
-    var fcmToken: String? = null
+    var fcmToken: String? = null,
+
+    @Column(name = "aceitou_privacidade", nullable = false)
+    var aceitouPrivacidade: Boolean = false
 
 )

@@ -11,5 +11,6 @@ data class UsuarioRequest(
     @field:NotBlank
     val email: String,
     @field:NotBlank
-    val senha: String
+    val senha: String,
+    val aceitouPrivacidade: Boolean? = null
 )

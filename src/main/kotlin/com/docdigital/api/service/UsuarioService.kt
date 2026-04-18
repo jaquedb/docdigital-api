@@ -40,13 +40,15 @@ class UsuarioService(
     fun cadastrarComVerificacao(
         nome: String,
         email: String,
-        senha: String
+        senha: String,
+        aceitouPrivacidade: Boolean?
     ): Usuario {
 
         val usuario = Usuario(
             nome = nome,
             email = email,
-            senha = senha
+            senha = senha,
+            aceitouPrivacidade = aceitouPrivacidade ?: false
         )
 
         val usuarioSalvo = cadastrar(usuario)
