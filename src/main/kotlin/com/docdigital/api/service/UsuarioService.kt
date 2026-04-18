@@ -44,6 +44,10 @@ class UsuarioService(
         aceitouPrivacidade: Boolean?
     ): Usuario {
 
+        if (aceitouPrivacidade != true) {
+            throw IllegalArgumentException("É obrigatório aceitar a política de privacidade")
+        }
+
         val usuario = Usuario(
             nome = nome,
             email = email,
