@@ -6,11 +6,13 @@ import com.docdigital.api.service.UsuarioService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import com.docdigital.api.config.JwtService
 
 @RestController
 @RequestMapping("/usuarios")
 class UsuarioController(
-    private val usuarioService: UsuarioService
+    private val usuarioService: UsuarioService,
+    private val jwtService: JwtService
 ) {
 
     @PostMapping
@@ -46,5 +48,19 @@ class UsuarioController(
         usuarioService.atualizarFcmToken(usuarioId, token)
 
         return ResponseEntity.ok().build()
+    }
+
+    @DeleteMapping("/me")
+    fun deletarConta(
+        @RequestHeader("Authorization") authHeader: String
+    ): ResponseEntity<String> {
+
+        val token = authHeader.replace("Bearer ", "")
+        val email = jwtService.extractUsername(token)
+            ?: throw RuntimeException("Token inválido")
+
+        val usuario = usuarioService.buscarPorEmail(email)
+
+        return ResponseEntity.ok("Usuário encontrado: ${usuario.email}")
     }
 }

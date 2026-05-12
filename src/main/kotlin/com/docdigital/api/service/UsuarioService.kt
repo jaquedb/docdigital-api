@@ -85,6 +85,11 @@ class UsuarioService(
         usuarioRepository.save(usuario)
     }
 
+    fun buscarPorEmail(email: String): Usuario {
+        return usuarioRepository.findByEmail(email)
+            .orElseThrow { RuntimeException("Usuário não encontrado") }
+    }
+
     private fun gerarTemplateEmail(
         titulo: String,
         codigo: String,
